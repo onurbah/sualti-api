@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 # Model ve CSV dosyasını yükle
-model = YOLO("best_yolov8.pt")
+model = YOLO("best_yolov8n.pt")
 df = pd.read_csv("species_info.csv")
 
 @app.route("/")
