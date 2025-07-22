@@ -5,13 +5,13 @@ import os
 
 app = Flask(__name__)
 
-# Model ve bilgi dosyasını yükle
+# Model ve CSV dosyasını yükle
 model = YOLO("best_yolov8.pt")
 df = pd.read_csv("species_info.csv")
 
 @app.route("/")
 def home():
-    return "🐠 Flask API ÇALIŞIYOR!"
+    return "✅ API aktif!"
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -27,20 +27,21 @@ def predict():
     boxes = results[0].boxes
 
     if len(boxes) == 0:
-        return jsonify({"label": "none", "info": "No object detected"}), 200
+        return jsonify({"error": "No object detected"}), 200
 
+    # İlk tespit edilen nesne
     class_id = int(boxes[0].cls[0].item())
     label = names[class_id]
 
-    info = df[df["label"] == label.lower()]
-    if info.empty:
+    # CSV’den bilgi al
+    info_row = df[df["label"] == label.lower()]
+    if info_row.empty:
         return jsonify({"label": label, "info": "No info found"}), 200
 
     return jsonify({
         "label": label,
-        "info": info.iloc[0].to_dict()
+        "info": info_row.iloc[0].to_dict()
     })
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host='0.0.0.0', port=10000)
